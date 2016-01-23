@@ -1,0 +1,161 @@
+﻿@model IEnumerable<Asio.Models.Enrollment>
+@using Microsoft.AspNet.Identity
+@using IdentitySample.Models
+@{
+    ViewBag.Title = "Transcript";
+}
+@{
+    var manager = new UserManager<ApplicationUser>(new Microsoft.AspNet.Identity.EntityFramework.UserStore<ApplicationUser>(new ApplicationDbContext()));
+    var currentUser = manager.FindById(User.Identity.GetUserId());
+    int totalCredits = 0;
+    int totalGrade = 0;
+    int sumGrade = 0;
+    int totalCourses = 0;
+    decimal average1 = 0;
+    decimal average2 = 0;
+}
+<h2>Transcript of Records</h2>
+
+<dl class="dl-horizontal">
+    <dt>
+        Student
+    </dt>
+
+    <dd>
+        @currentUser.FullName
+    </dd>
+
+    <dt>
+        Student Username
+    </dt>
+
+    <dd>
+        @User.Identity.GetUserName()
+    </dd>
+
+    <dt>
+        Date
+    </dt>
+
+    <dd>
+        @DateTime.Now.ToString("dd-MM-yyyy")
+    </dd>
+</dl>
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Course.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Course.Code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Course.Credits)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Grade)
+            </th>
+            <th>
+                Pass
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Course.TeacherId)
+            </th>
+        </tr>
+@if (Model.Count() > 0)
+{
+    foreach (var item in Model)
+    {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Credits)
+                </td>
+                <td>
+                    @if (item.Grade != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Grade)
+                    }                    
+                </td>
+
+                @if (item.IsPassed == true)
+                {
+                    <td>Passed</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Course.Teacher.User.FullName)
+                </td>
+            </tr>
+            if (item.Grade != null && item.IsPassed == true)
+            {
+                totalGrade += (item.Grade.Value * item.Course.Credits);
+                sumGrade += item.Grade.Value;
+                totalCredits += item.Course.Credits;
+                totalCourses += 1;
+            }
+    }
+}
+</table>
+<br/>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Total Completed</div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <dt style="width: 360px; text-align: left;">
+                Credits of completed courses total 
+            </dt>
+
+            <dd style="margin-left: 380px">
+                @totalCredits
+            </dd>
+
+            <dt style="width: 360px; text-align: left;">
+                Amount of completed courses
+            </dt>
+
+            <dd style="margin-left: 380px">
+                @totalCourses
+            </dd>
+            
+            <dt style="width: 360px; text-align: left;">
+                Average grade of completed courses
+            </dt>
+            @if (totalCourses > 0)
+            {
+                average1 = sumGrade / totalCourses;
+            }
+            <dd style="margin-left: 380px">
+                @average1.ToString("0.00")
+            </dd>
+
+            <dt style="width: 360px; text-align: left;">
+                Weighted average grade of completed courses
+            </dt>
+            @if (totalCourses > 0)
+            {
+                average2 = totalGrade / totalCredits;
+            }
+            <dd style="margin-left: 380px">
+                @average2.ToString("0.00")
+            </dd>
+        </dl>
+    </div>
+</div>

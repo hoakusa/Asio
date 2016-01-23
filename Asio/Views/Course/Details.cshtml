@@ -1,0 +1,122 @@
+﻿@model Asio.Models.CourseViewModel
+
+@{
+    ViewBag.Title = @Html.DisplayFor(model => model.Course.Name);
+}
+
+<h2>@Html.DisplayFor(model => model.Course.Name)</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Course.Code)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Course.Code)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Course.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Course.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Course.Credits)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Course.Credits)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Course.Semester.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Course.Semester.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Course.TeacherId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model=> model.Course.Teacher.User.FirstName) @Html.DisplayFor(model => model.Course.Teacher.User.LastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Course.CreatedTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Course.CreatedTime)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Course.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+@if ((User.IsInRole("Teacher") || User.IsInRole("Admin")) && Model.Enrollments.Count() > 0)
+{
+    <h3>
+        Students Enrolled in Selected Course
+    </h3>
+    <table class="table">
+        <tr>
+            <th>
+                Name
+            </th>
+            @*<th>
+                Group
+            </th>*@
+            <th>
+                Grade
+            </th>
+            <th>
+                Last changed
+            </th>
+            <th></th>
+        </tr>
+        @foreach (var item in Model.Enrollments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Student.User.FullName) (@Html.DisplayFor(modelItem => item.Student.User.UserName))
+                </td>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.Student.Group.Name)
+                </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.Grade)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedTime)
+                </td>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>
+                        @Html.ActionLink("Disenroll", "Details", new { id = Model.Course.Id, enrollmentId = item.Id })
+                    </td>
+                }
+
+                @if (User.IsInRole("Teacher"))
+                {
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", "Enrollment", new { id = item.Id }, null) |
+                        @Html.ActionLink("Disenroll", "Details", new { id = Model.Course.Id, enrollmentId = item.Id })
+                    </td>
+                }
+
+            </tr>
+        }
+    </table>
+}
